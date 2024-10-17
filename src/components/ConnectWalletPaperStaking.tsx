@@ -2,6 +2,7 @@ import { CircularProgress, Paper, PaperProps, Typography } from "@mui/material";
 import { ReactNode } from "react";
 // import { StakingPanelNoWallet } from 'src/modules/staking/StakingPanelNoWallet';
 import { Button } from "@mui/material";
+import ConnectModel from "./connectComponent/ConnectModel";
 
 interface ConnectWalletPaperStakingProps extends PaperProps {
   loading?: boolean;
@@ -47,7 +48,7 @@ export const ConnectWalletPaperStaking = ({
                 </g>
               )}
             </Typography>
-            <Button
+            {/* <Button
               variant="outlined"
               sx={{
                 fontSize: "12px",
@@ -59,7 +60,8 @@ export const ConnectWalletPaperStaking = ({
               }}
             >
               Connect wallet
-            </Button>
+            </Button> */}
+            <ConnectModel />
             {/* <ConnectWalletButton funnel={"Staking page"} /> */}
             {/* <Grid container spacing={1} pt={6} sx={{ maxWidth: '758px', textAlign: 'right' }}>
               <Grid item xs={12} md={4}>

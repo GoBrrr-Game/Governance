@@ -4,17 +4,18 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  DialogContentText,
   DialogTitle,
 } from "@mui/material";
 
-const MyDialog = () => {
+const MyDialog: React.FC = () => {
   const [open, setOpen] = useState(false);
 
+  // Function to open the dialog
   const handleClickOpen = () => {
     setOpen(true);
   };
 
+  // Function to close the dialog
   const handleClose = () => {
     setOpen(false);
   };
@@ -22,21 +23,14 @@ const MyDialog = () => {
   return (
     <div>
       <Button variant="outlined" onClick={handleClickOpen}>
-        Open Dialog
+        Connect Wallet
       </Button>
       <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>Dialog Title</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            This is a simple dialog. You can put any content here.
-          </DialogContentText>
-        </DialogContent>
+        <DialogTitle>Connect a wallet</DialogTitle>
+        <DialogContent>asdfasdfasdfadsf</DialogContent>
         <DialogActions>
           <Button onClick={handleClose} color="primary">
-            Cancel
-          </Button>
-          <Button onClick={handleClose} color="primary">
-            Agree
+            Close
           </Button>
         </DialogActions>
       </Dialog>
