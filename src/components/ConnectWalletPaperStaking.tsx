@@ -48,6 +48,7 @@ export const ConnectWalletPaperStaking = ({
                 </g>
               )}
             </Typography>
+            <ConnectModel />
             {/* <Button
               variant="outlined"
               sx={{
@@ -61,7 +62,6 @@ export const ConnectWalletPaperStaking = ({
             >
               Connect wallet
             </Button> */}
-            <ConnectModel />
             {/* <ConnectWalletButton funnel={"Staking page"} /> */}
             {/* <Grid container spacing={1} pt={6} sx={{ maxWidth: '758px', textAlign: 'right' }}>
               <Grid item xs={12} md={4}>

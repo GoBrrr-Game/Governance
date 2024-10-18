@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Button,
@@ -6,11 +6,15 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  IconButton,
   InputBase,
   Link,
   Typography,
 } from "@mui/material";
 import WalletRow from "./WalletRow";
+import { ethers } from "ethers";
+import CloseIcon from "@mui/material/Icon";
+
 const MyDialog: React.FC = () => {
   const [open, setOpen] = useState(false);
   // Function to open the dialog
@@ -23,24 +27,96 @@ const MyDialog: React.FC = () => {
     setOpen(false);
   };
 
+  const [account, setAccount] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  // Shorten Ethereum address
+  const shortenAddress = (address: string): string => {
+    if (!address) return "";
+    return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  };
+
+  // Check if MetaMask is available and connect to it
+  const connectWallet = async () => {
+    if (typeof window.ethereum !== "undefined") {
+      try {
+        // Request MetaMask accounts
+        const accounts = await window.ethereum.request({
+          method: "eth_requestAccounts",
+        });
+        setAccount(accounts[0]); // Set the first account
+        handleClose();
+      } catch (error) {
+        setError("Failed to connect to MetaMask");
+      }
+    } else {
+      setError("MetaMask is not installed");
+    }
+  };
+  // Auto-connect if already authorized
+  useEffect(() => {
+    if (typeof window.ethereum !== "undefined") {
+      const handleAccountsChanged = (accounts: string[]) => {
+        if (accounts.length === 0) {
+          // MetaMask is disconnected or no accounts available
+          setAccount(null);
+        } else {
+          // User switched accounts, update the state
+          setAccount(accounts[0]);
+        }
+      };
+
+      window.ethereum.on("accountsChanged", handleAccountsChanged);
+
+      // Cleanup listener on component unmount
+      return () => {
+        window.ethereum.removeListener(
+          "accountsChanged",
+          handleAccountsChanged
+        );
+      };
+    }
+  }, []);
+
   return (
     <div>
-      <Button
-        variant="outlined"
-        onClick={handleClickOpen}
-        style={{ fontWeight: "bold" }}
-      >
-        Connect Wallet
-      </Button>
+      {account ? (
+        <Button variant="outlined" style={{ fontWeight: "bold" }}>
+          {shortenAddress(account)}
+        </Button>
+      ) : (
+        <Button
+          variant="outlined"
+          onClick={handleClickOpen}
+          style={{ fontWeight: "bold" }}
+        >
+          Connect Wallet
+        </Button>
+      )}
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle style={{ fontWeight: "bold" }}>
           Connect a wallet
+          <IconButton
+            aria-label="close"
+            onClick={handleClose}
+            sx={{
+              backgroundColor: "grey",
+              position: "absolute",
+              right: 8,
+              top: 8,
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
         </DialogTitle>
         <Box sx={{ display: "flex", flexDirection: "column" }}>
-          <WalletRow title="Browser wallet"></WalletRow>
-          <WalletRow title="WalletConnect"></WalletRow>
-          <WalletRow title="Coinbase Wallet"></WalletRow>
-          <WalletRow title="Torus"></WalletRow>
+          <WalletRow title="Browser wallet" onClick={connectWallet}></WalletRow>
+          <WalletRow title="WalletConnect" onClick={connectWallet}></WalletRow>
+          <WalletRow
+            title="Coinbase Wallet"
+            onClick={connectWallet}
+          ></WalletRow>
+          <WalletRow title="Torus" onClick={connectWallet}></WalletRow>
         </Box>
         <div
           style={{
@@ -116,9 +192,7 @@ const MyDialog: React.FC = () => {
           </Typography>
         </div>
         <DialogActions>
-          <Button onClick={handleClose} color="primary">
-            Close
-          </Button>
+          <Button onClick={handleClose} color="primary"></Button>
         </DialogActions>
       </Dialog>
     </div>

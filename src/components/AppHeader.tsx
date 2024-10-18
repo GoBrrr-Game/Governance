@@ -13,7 +13,9 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { SparklesIcon, SwitchHorizontalIcon } from "@heroicons/react/outline";
+import { SparklesIcon } from "@heroicons/react/24/solid";
+import { ArrowsRightLeftIcon } from "@heroicons/react/24/solid";
+import ConnectModel from "./connectComponent/ConnectModel";
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
   "& .MuiBadge-badge": {
@@ -54,10 +56,17 @@ export function AppHeader() {
   const navItems = ["Dashboard", "Markets", "Stake", "Governance"];
   const headerHeight = 48;
 
+  const [account, setAccount] = useState<string | null>(null);
+
   const { breakpoints } = useTheme();
   const md = useMediaQuery(breakpoints.down("md"));
   const sm = useMediaQuery(breakpoints.down("sm"));
   const smd = useMediaQuery("(max-width:1120px)");
+
+  const handleModalChange = (newValue: string) => {
+    setAccount(newValue); // Update the parent state with the new value from the modal
+  };
+
   return (
     <Box
       component="header"
@@ -135,7 +144,7 @@ export function AppHeader() {
               </Typography>
             )}
             <SvgIcon fontSize="small">
-              <SparklesIcon />
+              <SparklesIcon className="h-6 w-6 text-blue-500" />
             </SvgIcon>
           </Button>
         </StyledBadge>
@@ -169,24 +178,13 @@ export function AppHeader() {
               </Typography>
             )}
             <SvgIcon fontSize="small">
-              <SwitchHorizontalIcon />
+              <ArrowsRightLeftIcon className="h-6 w-6 text-blue-500" />
             </SvgIcon>
           </Button>
         </StyledBadge>
       </NoSsr>
-      <Button
-        variant="outlined"
-        sx={{
-          fontSize: "12px",
-          color: "white",
-          p: "7px 8px",
-          minWidth: "unset",
-          gap: 2,
-          alignItems: "center",
-        }}
-      >
-        Connect wallet
-      </Button>
+
+      <ConnectModel onPropChange={handleModalChange} />
     </Box>
   );
 }

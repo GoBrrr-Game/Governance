@@ -3,11 +3,13 @@ import { Button } from "@mui/material";
 
 interface CustomContentProps {
   title: string;
+  onClick: (name: string) => void;
 }
 
-const WalletRow: React.FC<CustomContentProps> = ({ title }) => {
+const WalletRow: React.FC<CustomContentProps> = ({ title, onClick }) => {
   return (
     <Button
+      onClick={() => onClick(title)}
       style={{
         color: "#383D51",
         fontWeight: "500",
