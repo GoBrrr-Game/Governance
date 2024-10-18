@@ -1,5 +1,5 @@
 import { CircularProgress, Paper, PaperProps, Typography } from "@mui/material";
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useState } from "react";
 // import { StakingPanelNoWallet } from 'src/modules/staking/StakingPanelNoWallet';
 import { Button } from "@mui/material";
 import ConnectModel from "./connectComponent/ConnectModel";
@@ -9,12 +9,9 @@ interface ConnectWalletPaperStakingProps extends PaperProps {
   description?: ReactNode;
 }
 
-export const ConnectWalletPaperStaking = ({
-  loading,
-  description,
-  sx,
-  ...rest
-}: ConnectWalletPaperStakingProps) => {
+export const ConnectWalletPaperStaking: React.FC<
+  ConnectWalletPaperStakingProps
+> = ({ loading, description, sx, ...rest }: ConnectWalletPaperStakingProps) => {
   return (
     <Paper
       {...rest}

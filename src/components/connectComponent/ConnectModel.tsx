@@ -14,6 +14,8 @@ import {
 import WalletRow from "./WalletRow";
 import { ethers } from "ethers";
 import CloseIcon from "@mui/material/Icon";
+import { useDispatch } from "react-redux";
+import { setModelValue } from "../../store/actions/actions"; // Import the action
 
 const MyDialog: React.FC = () => {
   const [open, setOpen] = useState(false);
@@ -30,6 +32,7 @@ const MyDialog: React.FC = () => {
   const [account, setAccount] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const dispatch = useDispatch();
   // Shorten Ethereum address
   const shortenAddress = (address: string): string => {
     if (!address) return "";
@@ -45,6 +48,7 @@ const MyDialog: React.FC = () => {
           method: "eth_requestAccounts",
         });
         setAccount(accounts[0]); // Set the first account
+        dispatch(setModelValue(accounts[0])); // Dispatch action to update Redux state
         handleClose();
       } catch (error) {
         setError("Failed to connect to MetaMask");
@@ -53,29 +57,42 @@ const MyDialog: React.FC = () => {
       setError("MetaMask is not installed");
     }
   };
-  // Auto-connect if already authorized
-  useEffect(() => {
-    if (typeof window.ethereum !== "undefined") {
-      const handleAccountsChanged = (accounts: string[]) => {
-        if (accounts.length === 0) {
-          // MetaMask is disconnected or no accounts available
-          setAccount(null);
-        } else {
-          // User switched accounts, update the state
+
+  const checkMetaMaskConnection = async () => {
+    try {
+      // Check if window.ethereum exists (MetaMask is installed)
+      if (window.ethereum) {
+        // Check if accounts are already connected
+        const accounts = await window.ethereum.request({
+          method: "eth_accounts",
+        });
+
+        if (accounts.length > 0) {
           setAccount(accounts[0]);
+        } else {
+          setAccount("");
         }
-      };
-
-      window.ethereum.on("accountsChanged", handleAccountsChanged);
-
-      // Cleanup listener on component unmount
-      return () => {
-        window.ethereum.removeListener(
-          "accountsChanged",
-          handleAccountsChanged
-        );
-      };
+      } else {
+        console.log("MetaMask is not installed");
+      }
+    } catch (error) {
+      console.error("Error checking MetaMask connection:", error);
     }
+  };
+
+  // Listen to account changes
+  useEffect(() => {
+    checkMetaMaskConnection();
+    // Listen for account changes
+    window.ethereum?.on("accountsChanged", (accounts: string[]) => {
+      if (accounts.length > 0) {
+        setAccount(accounts[0]);
+        dispatch(setModelValue(accounts[0])); // Dispatch action to update Redux state
+      } else {
+        setAccount("");
+        dispatch(setModelValue("")); // Dispatch action to update Redux state
+      }
+    });
   }, []);
 
   return (
