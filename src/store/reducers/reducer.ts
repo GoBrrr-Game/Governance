@@ -1,21 +1,21 @@
-import { SET_MODEL_VALUE } from "../actions/actions";
+import { SET_WALLET_ACCOUNT } from "../actions/actions";
 
 // Initial state
 const initialState = {
-  modelValue: "",
+  account: "",
 };
 
 // Reducer function to handle state changes
-const connectModelReducer = (state = initialState, action: any) => {
+const connectWalletReducer = (state = initialState, action: any) => {
   switch (action.type) {
-    case SET_MODEL_VALUE:
+    case SET_WALLET_ACCOUNT:
       return {
         ...state,
-        modelValue: action.payload,
+        account: action.payload,
       };
     default:
       return state;
   }
 };
 
-export default connectModelReducer;
+export default connectWalletReducer;

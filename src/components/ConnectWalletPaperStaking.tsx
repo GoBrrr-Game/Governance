@@ -2,7 +2,7 @@ import { CircularProgress, Paper, PaperProps, Typography } from "@mui/material";
 import { ReactNode, useEffect, useState } from "react";
 // import { StakingPanelNoWallet } from 'src/modules/staking/StakingPanelNoWallet';
 import { Button } from "@mui/material";
-import ConnectModel from "./connectComponent/ConnectModel";
+import ConnectModel from "./connect/ConnectModel";
 
 interface ConnectWalletPaperStakingProps extends PaperProps {
   loading?: boolean;

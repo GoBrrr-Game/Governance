@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import * as React from "react";
 import Box from "@mui/material/Box";
 import Link from "next/link";
-import { uiConfig } from "@/uiConfig";
+import { uiConfig } from "@/config/ui";
 import {
   Badge,
   Button,
@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 import { SparklesIcon } from "@heroicons/react/24/solid";
 import { ArrowsRightLeftIcon } from "@heroicons/react/24/solid";
-import ConnectModel from "./connectComponent/ConnectModel";
+import ConnectModel from "./connect/ConnectModel";
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
   "& .MuiBadge-badge": {
@@ -184,7 +184,7 @@ export function AppHeader() {
         </StyledBadge>
       </NoSsr>
 
-      <ConnectModel onPropChange={handleModalChange} />
+      <ConnectModel />
     </Box>
   );
 }

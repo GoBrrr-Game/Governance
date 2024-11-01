@@ -15,7 +15,8 @@ import WalletRow from "./WalletRow";
 import { ethers } from "ethers";
 import CloseIcon from "@mui/material/Icon";
 import { useDispatch } from "react-redux";
-import { setModelValue } from "../../store/actions/actions"; // Import the action
+import { setWalletAddress } from "../../store/actions/actions"; // Import the action
+import { switchNetwork } from "@/utils/network";
 
 const MyDialog: React.FC = () => {
   const [open, setOpen] = useState(false);
@@ -47,8 +48,9 @@ const MyDialog: React.FC = () => {
         const accounts = await window.ethereum.request({
           method: "eth_requestAccounts",
         });
+        await switchNetwork();
         setAccount(accounts[0]); // Set the first account
-        dispatch(setModelValue(accounts[0])); // Dispatch action to update Redux state
+        dispatch(setWalletAddress(accounts[0])); // Dispatch action to update Redux state
         handleClose();
       } catch (error) {
         setError("Failed to connect to MetaMask");
@@ -66,9 +68,10 @@ const MyDialog: React.FC = () => {
         const accounts = await window.ethereum.request({
           method: "eth_accounts",
         });
-
+        await switchNetwork();
         if (accounts.length > 0) {
           setAccount(accounts[0]);
+          dispatch(setWalletAddress(accounts[0]));
         } else {
           setAccount("");
         }
@@ -87,10 +90,10 @@ const MyDialog: React.FC = () => {
     window.ethereum?.on("accountsChanged", (accounts: string[]) => {
       if (accounts.length > 0) {
         setAccount(accounts[0]);
-        dispatch(setModelValue(accounts[0])); // Dispatch action to update Redux state
+        dispatch(setWalletAddress(accounts[0])); // Dispatch action to update Redux state
       } else {
         setAccount("");
-        dispatch(setModelValue("")); // Dispatch action to update Redux state
+        dispatch(setWalletAddress("")); // Dispatch action to update Redux state
       }
     });
   }, []);

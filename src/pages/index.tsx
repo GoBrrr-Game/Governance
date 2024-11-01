@@ -4,23 +4,24 @@ import { StakingHeader } from "@/components/StakingHeader";
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../store/store"; // Import the RootState type
+import { TestStaking } from "@/components/TestStaking";
 const IndexPage: React.FC = () => {
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
-  const modelValue = useSelector(
-    (state: RootState) => state.connectModel.modelValue
+  const accountValue = useSelector(
+    (state: RootState) => state.connectWallet.account
   );
   return (
     <>
       <MainLayout />
       <StakingHeader />
-      {modelValue == "" ? (
-        <div style={{ width: "100%", marginTop: "-32px" }}>
-          <div
-            style={{
-              paddingLeft: "6rem",
-              paddingRight: "6rem",
-            }}
-          >
+      <div style={{ width: "100%", marginTop: "-32px" }}>
+        <div
+          style={{
+            paddingLeft: "6rem",
+            paddingRight: "6rem",
+          }}
+        >
+          {accountValue == "" ? (
             <ConnectWalletPaperStaking
               description={
                 <g>
@@ -29,11 +30,13 @@ const IndexPage: React.FC = () => {
                 </g>
               }
             />
-          </div>
+          ) : (
+            <TestStaking
+              address={accountValue}
+            />
+          )}
         </div>
-      ) : (
-        <div>{modelValue}</div>
-      )}
+      </div>
     </>
   );
 };

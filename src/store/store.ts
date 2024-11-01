@@ -1,10 +1,10 @@
 import { configureStore } from "@reduxjs/toolkit";
-import connectModelReducer from "./reducers/reducer"; // Import the reducer
+import connectWalletReducer from "./reducers/reducer"; // Import the reducer
 
 // Create the store and apply the reducer
 export const store = configureStore({
   reducer: {
-    connectModel: connectModelReducer, // Add your reducer here
+    connectWallet: connectWalletReducer, // Add your reducer here
   },
 });
 

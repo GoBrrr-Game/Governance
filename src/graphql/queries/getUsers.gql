@@ -1,0 +1,10 @@
+query getUsers {
+    userInfos(first: 5) {
+        id
+        pool {
+            id
+        }
+        currentStakedAmount
+        totalStakedAmount
+    }
+}
