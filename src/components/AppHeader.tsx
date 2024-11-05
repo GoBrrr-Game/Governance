@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import * as React from "react";
 import Box from "@mui/material/Box";
 import Link from "next/link";
+import Image from "next/image";
 import { uiConfig } from "@/config/ui";
 import {
   Badge,
@@ -102,7 +103,7 @@ export function AppHeader() {
         }}
         onClick={() => setMobileMenuOpen(false)}
       >
-        <img src={uiConfig.appLogo} alt="AAVE" width={20} height={20} />
+        <Image src={uiConfig.appLogo} alt="AAVE" width={20} height={20} />
       </Box>
       <Box sx={{ display: { xs: "none", md: "block" } }}>
         {navItems.map((item) => (
