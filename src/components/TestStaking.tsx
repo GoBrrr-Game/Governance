@@ -5,7 +5,7 @@ import {parseDate, getLocalTimeZone} from "@internationalized/date";
 import { ReactNode, useEffect, useState } from "react";
 // import { StakingPanelNoWallet } from 'src/modules/staking/StakingPanelNoWallet';
 import ConnectModel from "./connect/ConnectModel";
-import { GET_USER_INFO_QUERY } from "@/graphql/queries";
+import { GET_USER_INFO_QUERY } from "@/graphql/query";
 import client from "@/graphql/client";
 import { ApolloQueryResult } from "@apollo/client";
 import { formatDisplayNumber } from "@/utils";

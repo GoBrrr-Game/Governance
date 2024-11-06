@@ -1,7 +1,7 @@
 import { Box, Link, Typography } from "@mui/material";
 import { useQuery, useLazyQuery, ApolloQueryResult } from '@apollo/client';
 import client from "@/graphql/client";
-import { GET_POOL_INFO_QUERY } from '@/graphql/queries';
+import { GET_POOL_INFO_QUERY } from '@/graphql/query';
 import { useEffect, useState } from "react";
 import { formatDisplayNumber } from "@/utils";
 import { networkConfig } from "@/config/network";
