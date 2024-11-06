@@ -22,8 +22,8 @@ const testConfig: Config = {
         symbol: 'ETH',
         decimals: 18,
     },
-    tokenContractAddress: '0x6d06d9CE8D0196b7b11f94c6caF1E62fbB2643Fa',
-    stakingContractAddrses: '0xC4F216bBaD63E6c8B6219b0FA0eb1421EbA7fD82',
+    tokenContractAddress: '0xA590CeeE761B560044c4BED66848e60641Fd69BE',
+    stakingContractAddrses: '0x18f6A39676FE5dEe1868273a31167e4D268173c0',
 };
 
 const mainConfig: Config = {

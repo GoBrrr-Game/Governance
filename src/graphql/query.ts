@@ -24,13 +24,25 @@ query UserInfoQuery($id: String) {
         totalStakedAmount
         totalWithdrawedAmount
         weights
-        rewardInfos {
+    }
+}`
+
+export const GET_REWARD_INFO_QUERY = gql`
+query UserInfoQuery($id: String, $skip: Int = 0, $first: Int = 10) { 
+    userInfo(id: $id) {
+        rewardInfos(skip: $skip, first: $first, orderBy: claimTime, orderDirection: desc) {
             amount
             claimTime
             claimedEpoch
             id
         }
-        stakeInfos {
+    }
+}`
+
+export const GET_STAKE_INFO_QUERY = gql`
+query UserInfoQuery($id: String, $skip: Int = 0, $first: Int = 10) { 
+    userInfo(id: $id) {
+        stakeInfos(skip: $skip, first: $first, orderBy: lockStartTime, orderDirection: desc) {
             finished
             finishedTime
             id
@@ -39,6 +51,18 @@ query UserInfoQuery($id: String) {
             lockStartTime
             lockType
             quantity
+        }
+    }
+}`
+
+export const GET_FILTERED_REWARD_INFO_QUERY = gql`
+query UserInfoQuery($id: String, $startTime: String, $endTime: String) { 
+    userInfo(id: $id) {
+        rewardInfos(where: {claimTime_gte: $startTime, claimTime_lte: $endTime}) {
+            amount
+            claimTime
+            claimedEpoch
+            id
         }
     }
 }`
