@@ -96,7 +96,7 @@ const MyDialog: React.FC = () => {
         dispatch(setWalletAddress("")); // Dispatch action to update Redux state
       }
     });
-  }, []);
+  });
 
   return (
     <div>

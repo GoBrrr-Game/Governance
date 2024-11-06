@@ -1,12 +1,11 @@
 import * as React from "react";
-import { useEffect, useState } from "react";
-import { Box, styled, SvgIcon, Typography } from "@mui/material";
-import Link from "next/link";
+import { Box } from "@mui/material";
+
+/*import Link from "next/link";
 
 interface StyledLinkProps {
   onClick?: React.MouseEventHandler<HTMLAnchorElement>;
 }
-
 const StyledLink = styled(Link)<StyledLinkProps>(({ theme }) => ({
   color: theme.palette.text.primary,
   "&:hover": {
@@ -14,10 +13,10 @@ const StyledLink = styled(Link)<StyledLinkProps>(({ theme }) => ({
   },
   display: "flex",
   alignItems: "center",
-}));
+}));*/
 
 export function AppFooter() {
-  const FOOTER_LINKS = [
+  /*const FOOTER_LINKS = [
     {
       href: "https://aave.com/terms-of-service",
       label: <g>Terms</g>,
@@ -54,7 +53,7 @@ export function AppFooter() {
         event.preventDefault();
       },
     },
-  ];
+  ];*/
 
   return (
     <Box

@@ -26,8 +26,8 @@ class PoolInfoData {
 
 export function StakingHeader() {
   const decimals = 10**18;
-  let [isUpgradable, setUpgradable] = useState(true);
-  let [poolInfo, setPoolInfo] = useState(new PoolInfoData());
+  const [isUpgradable, setUpgradable] = useState(true);
+  const [poolInfo, setPoolInfo] = useState(new PoolInfoData());
 
   useEffect(() => {
     if (!isUpgradable) return;
@@ -47,7 +47,7 @@ export function StakingHeader() {
       setPoolInfo(poolInfo);
       setUpgradable(false);
     });
-  }, [isUpgradable]);
+  }, [isUpgradable, decimals]);
   return (
     <div
       style={{

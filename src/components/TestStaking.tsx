@@ -311,7 +311,7 @@ TestStakingProps
         console.log(err);
       }
     });
-  }, [address]);
+  }, [address, decimals]);
 
   useEffect(() => {
     if (!address) return;
