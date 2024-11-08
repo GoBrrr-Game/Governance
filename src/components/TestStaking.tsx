@@ -387,13 +387,13 @@ TestStakingProps
       upgradeAll()
     },12000);
     const lockInterval = setInterval(() => {
-      let curTime = new Date().getTime() / 1000;
+      const curTime = new Date().getTime() / 1000;
       console.log(userInfo.cooldownTimestamp + cooldownSeconds, curTime);
       if (userInfo.cooldownTimestamp + cooldownSeconds <= curTime) {
         setLockRemainText("Unlocked");
       }else {
-        let remain = (userInfo.cooldownTimestamp + cooldownSeconds - curTime);
-        setLockRemainText(`${remain}s Remain`);
+        const remain = Math.floor(userInfo.cooldownTimestamp + cooldownSeconds - curTime);
+        setLockRemainText(`${Math.floor(remain / 3600)}h ${Math.floor((remain % 3600)/60)}m ${Math.floor(remain % 60)}s Remain`);
       }
     }, 1000);
     return () => {
