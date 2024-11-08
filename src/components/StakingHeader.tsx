@@ -36,6 +36,7 @@ export function StakingHeader() {
     if (!isUpgradable) return;
     client.query({
       query: GET_POOL_INFO_QUERY,
+      fetchPolicy: "no-cache",
       variables: {
         id: networkConfig.stakingContractAddrses.toLowerCase()
       }

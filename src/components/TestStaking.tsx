@@ -177,6 +177,7 @@ TestStakingProps
   const getClaimedRewardInterval = () => {
     client.query({
       query: GET_USER_INFO_QUERY,
+      fetchPolicy: "no-cache",
       variables: {
         id: address,
         startTime: Math.floor(claimInterval.start.toDate(getLocalTimeZone()).getTime() / 1000),
@@ -325,6 +326,7 @@ TestStakingProps
   const upgradeAll = () => {
     client.query({
       query: GET_USER_INFO_QUERY,
+      fetchPolicy: "no-cache",
       variables: {
         poolId: networkConfig.stakingContractAddrses,
         userId: address
