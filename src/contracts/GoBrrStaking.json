@@ -2,8 +2,33 @@
   {
     "inputs": [
       {
+        "internalType": "string",
+        "name": "_name",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_symbol",
+        "type": "string"
+      },
+      {
         "internalType": "uint256",
         "name": "_epochBlockCount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_multiplier",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_cooldownSeconds",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_rewardRatePerBlock",
         "type": "uint256"
       },
       {
@@ -14,6 +39,92 @@
     ],
     "stateMutability": "nonpayable",
     "type": "constructor"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "spender",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "allowance",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "needed",
+        "type": "uint256"
+      }
+    ],
+    "name": "ERC20InsufficientAllowance",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "balance",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "needed",
+        "type": "uint256"
+      }
+    ],
+    "name": "ERC20InsufficientBalance",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "approver",
+        "type": "address"
+      }
+    ],
+    "name": "ERC20InvalidApprover",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "receiver",
+        "type": "address"
+      }
+    ],
+    "name": "ERC20InvalidReceiver",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      }
+    ],
+    "name": "ERC20InvalidSender",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "spender",
+        "type": "address"
+      }
+    ],
+    "name": "ERC20InvalidSpender",
+    "type": "error"
   },
   {
     "inputs": [],
@@ -51,6 +162,50 @@
     "inputs": [],
     "name": "ReentrancyGuardReentrantCall",
     "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "spender",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "value",
+        "type": "uint256"
+      }
+    ],
+    "name": "Approval",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "Cooldown",
+    "type": "event"
   },
   {
     "anonymous": false,
@@ -153,6 +308,25 @@
       {
         "indexed": false,
         "internalType": "uint256",
+        "name": "oldCooldownSeconds",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "newCooldownSeconds",
+        "type": "uint256"
+      }
+    ],
+    "name": "SetCooldownSeconds",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
         "name": "oldEpochBlockCount",
         "type": "uint256"
       },
@@ -172,37 +346,6 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "lockType",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "oldLockPeriod",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "newLockPeriod",
-        "type": "uint256"
-      }
-    ],
-    "name": "SetLockPeriod",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "lockType",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
         "name": "oldMultiplier",
         "type": "uint256"
       },
@@ -213,7 +356,7 @@
         "type": "uint256"
       }
     ],
-    "name": "SetRewardMultiplier",
+    "name": "SetMultiplier",
     "type": "event"
   },
   {
@@ -222,23 +365,17 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "lockType",
+        "name": "oldRewardRatePerBlock",
         "type": "uint256"
       },
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "oldMultiplier",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "newMultiplier",
+        "name": "newRewardRatePerBlock",
         "type": "uint256"
       }
     ],
-    "name": "SetVotingPowerMultiplier",
+    "name": "SetRewardRatePerBlock",
     "type": "event"
   },
   {
@@ -255,15 +392,34 @@
         "internalType": "uint256",
         "name": "amount",
         "type": "uint256"
+      }
+    ],
+    "name": "Stake",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "from",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
       },
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "lockType",
+        "name": "value",
         "type": "uint256"
       }
     ],
-    "name": "Stake",
+    "name": "Transfer",
     "type": "event"
   },
   {
@@ -304,7 +460,126 @@
   },
   {
     "inputs": [],
+    "name": "BONUS_MULTIPLIER",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "LOWER_BOUND",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "MAX_UINT",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "REWARD_RATE_UNIT",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "accTokensPerShare",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "spender",
+        "type": "address"
+      }
+    ],
+    "name": "allowance",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "spender",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "value",
+        "type": "uint256"
+      }
+    ],
+    "name": "approve",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "balanceOf",
     "outputs": [
       {
         "internalType": "uint256",
@@ -324,7 +599,14 @@
   },
   {
     "inputs": [],
-    "name": "decimals",
+    "name": "cooldown",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "cooldownSeconds",
     "outputs": [
       {
         "internalType": "uint256",
@@ -337,7 +619,33 @@
   },
   {
     "inputs": [],
+    "name": "decimals",
+    "outputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "epochBlockCount",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "firstEpochStartBlock",
     "outputs": [
       {
         "internalType": "uint256",
@@ -369,7 +677,39 @@
   },
   {
     "inputs": [],
+    "name": "getCurrentEpochId",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "getCurrentEpochTotalReward",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_block",
+        "type": "uint256"
+      }
+    ],
+    "name": "getEpochId",
     "outputs": [
       {
         "internalType": "uint256",
@@ -401,116 +741,12 @@
   },
   {
     "inputs": [],
-    "name": "getLockMultiplierConfigs",
-    "outputs": [
-      {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "votingPowerMultiplier",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "rewardMultiplier",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "lockPeriod",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct GoBrrStaking.LockMultiplierConfig[]",
-        "name": "",
-        "type": "tuple[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_lockType",
-        "type": "uint256"
-      }
-    ],
-    "name": "getLockPeriod",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "getRewardFromLastUpdate",
     "outputs": [
       {
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_lockType",
-        "type": "uint256"
-      }
-    ],
-    "name": "getRewardMultiplier",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_user",
-        "type": "address"
-      }
-    ],
-    "name": "getStakeInfo",
-    "outputs": [
-      {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "lockEndTime",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "lockType",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "quantity",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct GoBrrStaking.StakeInfo[]",
-        "name": "",
-        "type": "tuple[]"
       }
     ],
     "stateMutability": "view",
@@ -558,25 +794,6 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_lockType",
-        "type": "uint256"
-      }
-    ],
-    "name": "getVotingPowerMultiplier",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
         "name": "_amount",
         "type": "uint256"
       }
@@ -601,6 +818,19 @@
   },
   {
     "inputs": [],
+    "name": "lastUpdateEpochId",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "lastUpdateEpochStartBlock",
     "outputs": [
       {
@@ -613,29 +843,26 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "lockMultiplierConfigs",
+    "inputs": [],
+    "name": "lpToken",
     "outputs": [
       {
-        "internalType": "uint256",
-        "name": "votingPowerMultiplier",
-        "type": "uint256"
-      },
+        "internalType": "contract IERC20",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "name",
+    "outputs": [
       {
-        "internalType": "uint256",
-        "name": "rewardMultiplier",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "lockPeriod",
-        "type": "uint256"
+        "internalType": "string",
+        "name": "",
+        "type": "string"
       }
     ],
     "stateMutability": "view",
@@ -695,6 +922,32 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "rewardRatePerBlock",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_cooldownSeconds",
+        "type": "uint256"
+      }
+    ],
+    "name": "setCooldownSeconds",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "uint256",
@@ -711,16 +964,11 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_lockType",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_lockPeriod",
+        "name": "_multiplier",
         "type": "uint256"
       }
     ],
-    "name": "setLockPeriod",
+    "name": "setMultiplier",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -729,34 +977,11 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_lockType",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_multiplier",
+        "name": "_rewardRatePerBlock",
         "type": "uint256"
       }
     ],
-    "name": "setRewardMultiplier",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_lockType",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_multiplier",
-        "type": "uint256"
-      }
-    ],
-    "name": "setVotingPowerMultiplier",
+    "name": "setRewardRatePerBlock",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -767,11 +992,6 @@
         "internalType": "uint256",
         "name": "_amount",
         "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_lockType",
-        "type": "uint256"
       }
     ],
     "name": "stake",
@@ -780,13 +1000,24 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "token",
-    "outputs": [
+    "inputs": [
       {
-        "internalType": "contract IERC20",
+        "internalType": "address",
         "name": "",
         "type": "address"
+      }
+    ],
+    "name": "stakersCooldowns",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -794,7 +1025,20 @@
   },
   {
     "inputs": [],
-    "name": "tokensWeightedShare",
+    "name": "symbol",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "totalStaked",
     "outputs": [
       {
         "internalType": "uint256",
@@ -807,7 +1051,7 @@
   },
   {
     "inputs": [],
-    "name": "totalStaked",
+    "name": "totalSupply",
     "outputs": [
       {
         "internalType": "uint256",
@@ -829,6 +1073,59 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "value",
+        "type": "uint256"
+      }
+    ],
+    "name": "transfer",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "from",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "value",
+        "type": "uint256"
+      }
+    ],
+    "name": "transferFrom",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -873,7 +1170,7 @@
       },
       {
         "internalType": "uint256",
-        "name": "lastTokensWeightedShare",
+        "name": "lastAccTokensPerShare",
         "type": "uint256"
       }
     ],

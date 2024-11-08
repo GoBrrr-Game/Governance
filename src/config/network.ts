@@ -23,7 +23,7 @@ const testConfig: Config = {
         decimals: 18,
     },
     tokenContractAddress: '0xA590CeeE761B560044c4BED66848e60641Fd69BE',
-    stakingContractAddrses: '0x18f6A39676FE5dEe1868273a31167e4D268173c0',
+    stakingContractAddrses: '0x9dfb0cfb227b7c81a564c3880292f2ff5251b67b',
 };
 
 const mainConfig: Config = {

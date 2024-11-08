@@ -21,14 +21,16 @@ interface TestStakingProps extends PaperProps {
 }
 
 interface StakeInfo {
+  id: string;
+  startTime: string;
+  previousLockedQuantity: string;
+  previousNolockedQuantity: string;
+  currentLockedQuantity: string;
+  currentNolockedQuantity: string;
+  claimedEpoch: string;
+  historyType: string;
   finished: boolean;
   finishedTime: string;
-  id: string;
-  lockEndTime: string;
-  lockPeriod: string;
-  lockStartTime: string;
-  lockType: string;
-  quantity: string;
 }
 
 interface RewardInfo {
@@ -39,25 +41,39 @@ interface RewardInfo {
 }
 
 class UserInfoData {
-  currentStakedAmount: number;
-  totalClaimedRewardAmount: number;
-  totalPendingRewardAmount: number;
-  totalStakedAmount: number;
+  totalLockedStakedAmount: number;
+  totalNolockedStakedAmount: number;
+  totalRewardInfoCount: number;
   totalWithdrawedAmount: number;
-  stakeInfos: StakeInfo[] = [];
-  rewardInfos: RewardInfo[] = [];
+  totalHistoryCount: number;
+  totalClaimedRewardAmount: number;
+  currentNolockedStakedAmount: number;
+  currentLockedStakedAmount: number;
+  cooldownAmount: number;
+  cooldownTimestamp: number;
+  userHistories: StakeInfo[] = [];
   constructor(
-    currentStakedAmount: number = 0,
+    totalLockedStakedAmount: number = 0,
+    totalNolockedStakedAmount: number = 0,
+    totalRewardInfoCount: number = 0,
+    totalWithdrawedAmount: number = 0,
+    totalHistoryCount: number = 0,
     totalClaimedRewardAmount: number = 0,
-    totalPendingRewardAmount: number = 0,
-    totalStakedAmount: number = 0,
-    totalWithdrawedAmount: number = 0
+    currentNolockedStakedAmount: number = 0,
+    currentLockedStakedAmount: number = 0,
+    cooldownAmount: number = 0,
+    cooldownTimestamp: number = 0
   ) {
-    this.currentStakedAmount = currentStakedAmount;
-    this.totalClaimedRewardAmount = totalClaimedRewardAmount;
-    this.totalPendingRewardAmount = totalPendingRewardAmount;
-    this.totalStakedAmount = totalStakedAmount;
+    this.totalLockedStakedAmount = totalLockedStakedAmount;
+    this.totalNolockedStakedAmount = totalNolockedStakedAmount;
+    this.totalRewardInfoCount = totalRewardInfoCount;
     this.totalWithdrawedAmount = totalWithdrawedAmount;
+    this.totalHistoryCount = totalHistoryCount;
+    this.totalClaimedRewardAmount = totalClaimedRewardAmount;
+    this.currentNolockedStakedAmount = currentNolockedStakedAmount;
+    this.currentLockedStakedAmount = currentLockedStakedAmount;
+    this.cooldownAmount = cooldownAmount;
+    this.cooldownTimestamp = cooldownTimestamp;
   }
 }
 
@@ -80,6 +96,29 @@ const getLockType = function (value: any): any {
   }
   return 'No Lock';
 }
+
+const historyTableColumns: GridColDef[] = [
+  { field: 'id', headerName: 'ID', flex: 50,
+    valueGetter: (value: any) => (Number((value || '').split('-')[1]) + 1)
+  },
+  { field: 'claimedEpoch', headerName: 'ClaimedEpoch', flex: 130, valueGetter: (value) => formatDisplayNumber(Number(value) / 10 ** 18) },
+  { field: 'previousLockedQuantity', headerName: 'PrevLocked', flex: 130, valueGetter: (value) => formatDisplayNumber(Number(value) / 10 ** 18) },
+  { field: 'previousNolockedQuantity', headerName: 'PrevNoLocked', flex: 130, valueGetter: (value) => formatDisplayNumber(Number(value) / 10 ** 18) },
+  { field: 'currentLockedQuantity', headerName: 'CurLocked', flex: 130, valueGetter: (value) => formatDisplayNumber(Number(value) / 10 ** 18) },
+  { field: 'currentNolockedQuantity', headerName: 'CurNoLocked', flex: 130, valueGetter: (value) => formatDisplayNumber(Number(value) / 10 ** 18) },
+  { field: 'rewardQuantity', headerName: 'Rewards', flex: 130, valueGetter: (value) => formatDisplayNumber(Number(value) / 10 ** 18) },
+  { field: 'startTime', headerName: 'StartTime', width: 200, valueGetter: (value) => (value && value != '0' ? formatTime(value) : '') },
+  { field: 'historyType', headerName: 'HistoryType', flex: 130 },
+  {
+    field: 'finished',
+    headerName: 'State',
+    description: 'This column has a value getter and is not sortable.',
+    sortable: true,
+    width: 110,
+    valueGetter: (value, row) => `${row.finished  ? 'Finished' : ''}`,
+  },
+  { field: 'finishedTime', headerName: 'WithdrawTime', width: 200, valueGetter: (value) => (value && value != '0' ? formatTime(value) : '') },
+];
 
 const stakeTableColumns: GridColDef[] = [
   { field: 'id', headerName: 'ID', flex: 50,
@@ -128,23 +167,30 @@ TestStakingProps
   const [claimableRewards, setClaimableRewards] = useState(0);
   const [stakeValue, setStakeValue] = useState(0);
   const [lockType, setLockType] = useState(0);
+  const [cooldownSeconds, setCooldownSeconds] = useState(0);
+  const [lockRemainText, setLockRemainText] = useState("");
   const [claimInterval, setClaimInterval] = useState({
     start: parseDate(moment().format("YYYY-MM-DD")),
     end: parseDate(moment().format("YYYY-MM-DD")),
   });
 
-  const getClaimedRewardInterval = (): number => {
-    if (!userInfo.rewardInfos) return 0;
-    const filteredRewardInfos = userInfo.rewardInfos.filter((rewardInfo: RewardInfo) => (
-        Number(rewardInfo.claimTime) * 1000 >= claimInterval.start.toDate(getLocalTimeZone()).getTime() && 
-        Number(rewardInfo.claimTime) * 1000 <= claimInterval.end.toDate(getLocalTimeZone()).getTime() + 24*60*60*1000));
-    if (!filteredRewardInfos.length) return 0;
-    return Number(filteredRewardInfos.reduce((a: RewardInfo, b: RewardInfo): RewardInfo => ({
-        amount: (Number(a.amount) + Number(b.amount)).toString(),
-        claimTime: "",
-        claimedEpoch: "",
-        id: "",
-      })).amount) / 10**18;
+  const getClaimedRewardInterval = () => {
+    client.query({
+      query: GET_USER_INFO_QUERY,
+      variables: {
+        id: address,
+        startTime: Math.floor(claimInterval.start.toDate(getLocalTimeZone()).getTime() / 1000),
+        endTime: Math.floor((claimInterval.end.toDate(getLocalTimeZone()).getTime() + 24*60*60*1000) / 1000),
+      }
+    }).then((value: ApolloQueryResult<any>) => {
+      const data = value.data;
+      if (!data.userInfo || !data.userInfo.userHistories) return;
+      let totalAmount: number = 0;
+      data.userInfo.userHistories.map((history: any) => {
+        totalAmount += Number(history.rewardQuantity) / decimals;
+      });
+      alert(formatDisplayNumber(totalAmount));
+    });
   }
   const handleStakeChange = (e: any) => {
     setStakeValue(e.target.value);
@@ -217,13 +263,27 @@ TestStakingProps
         const tx1 = await tokenContract.approve(networkConfig.stakingContractAddrses, BigInt(Math.ceil(amount)) * BigInt(decimals));
         await tx1.wait();
       }
-      const tx2 = await stakingContract.stake(BigInt(amount) * BigInt(decimals), lockType);
+      const tx2 = await stakingContract.stake(BigInt(amount) * BigInt(decimals));
       await tx2.wait();
       upgradeAll();
       setLoading(false);
       console.log("Staked");
     } catch (err: any) {
       console.log(err, err.message);
+    }
+  }
+
+  const handleCooldown = async () => {
+    if (!stakingContract) return;
+    try {
+      setLoading(true);
+      const tx = await stakingContract.cooldown();
+      await tx.wait();
+      upgradeAll();
+      setLoading(false);
+      console.log("Cooldown");
+    } catch (err) {
+      console.log(err);
     }
   }
 
@@ -266,20 +326,27 @@ TestStakingProps
     client.query({
       query: GET_USER_INFO_QUERY,
       variables: {
-        id: address
+        poolId: networkConfig.stakingContractAddrses,
+        userId: address
       }
     }).then((value: ApolloQueryResult<any>) => {
       const data = value.data;
-      if (!data.userInfo) return;
+      if (!data.userInfo || !data.cooldownSnapshotInfo) return;
       const userInfo: UserInfoData = new UserInfoData(
-        Number(data.userInfo.currentStakedAmount) / decimals,
+        Number(data.userInfo.totalLockedStakedAmount) / decimals,
+        Number(data.userInfo.totalNolockedStakedAmount) / decimals,
+        Number(data.userInfo.totalRewardInfoCount) / decimals,
+        Number(data.userInfo.totalWithdrawedAmount) / decimals,
+        Number(data.userInfo.totalHistoryCount) / decimals,
         Number(data.userInfo.totalClaimedRewardAmount) / decimals,
-        Number(data.userInfo.totalPendingRewardAmount) / decimals,
-        Number(data.userInfo.totalStakedAmount) / decimals,
-        Number(data.userInfo.totalWithdrawedAmount) / decimals
+        Number(data.userInfo.currentNolockedStakedAmount) / decimals,
+        Number(data.userInfo.currentLockedStakedAmount) / decimals,
+        Number(data.cooldownSnapshotInfo.amount) / decimals,
+        Number(data.cooldownSnapshotInfo.timestamp)
       );
-      userInfo.stakeInfos = data.userInfo.stakeInfos;
-      userInfo.rewardInfos = data.userInfo.rewardInfos;
+      setCooldownSeconds(Number(data.poolInfo.cooldownSeconds));
+      console.log(address, userInfo);
+      userInfo.userHistories = data.userInfo.userHistories;
       if (tokenContract) {
         tokenContract.balanceOf(address).then((value) => {
           setCurrentBalance(Number(value) / decimals);
@@ -316,6 +383,23 @@ TestStakingProps
   useEffect(() => {
     if (!address) return;
     upgradeAll();
+    const interval = setInterval(() => {
+      upgradeAll()
+    },12000);
+    const lockInterval = setInterval(() => {
+      let curTime = new Date().getTime() / 1000;
+      console.log(userInfo.cooldownTimestamp + cooldownSeconds, curTime);
+      if (userInfo.cooldownTimestamp + cooldownSeconds <= curTime) {
+        setLockRemainText("Unlocked");
+      }else {
+        let remain = (userInfo.cooldownTimestamp + cooldownSeconds - curTime);
+        setLockRemainText(`${remain}s Remain`);
+      }
+    }, 1000);
+    return () => {
+      clearInterval(interval);
+      clearInterval(lockInterval);
+    }
   }, [address]);
 
   return (
@@ -337,39 +421,53 @@ TestStakingProps
           <CircularProgress />
         ) : (<>
           <div style={{ display: "flex", width: "100%", marginBottom: "30px" }}>
-            <Typography sx={{ color: "#888888", width: "20%" }}>
+            <Typography sx={{ color: "#888888", width: "10%" }}>
               <g>Balance</g>
               <br />
               <g style={{ fontSize: "1rem", color: "#424242" }}>
                 { formatDisplayNumber(currentBalance) }
               </g>
             </Typography>
-            <Typography sx={{ color: "#888888", width: "20%" }}>
-              <g>StakeAmount</g>
+            <Typography sx={{ color: "#888888", width: "10%" }}>
+              <g>Total Locked</g>
               <br />
               <g style={{ fontSize: "1rem", color: "#424242" }}>
-                { formatDisplayNumber(userInfo.currentStakedAmount) }
+                { formatDisplayNumber(userInfo.totalLockedStakedAmount) }
               </g>
             </Typography>
-            <Typography sx={{ color: "#888888", width: "20%" }}>
-              <g>ClaimedAmount</g>
+            <Typography sx={{ color: "#888888", width: "10%" }}>
+              <g>Total NoLock</g>
+              <br />
+              <g style={{ fontSize: "1rem", color: "#424242" }}>
+                { formatDisplayNumber(userInfo.totalNolockedStakedAmount) }
+              </g>
+            </Typography>
+            <Typography sx={{ color: "#888888", width: "10%" }}>
+              <g>Claimed</g>
               <br />
               <g style={{ fontSize: "1rem", color: "#424242" }}>
                 { formatDisplayNumber(userInfo.totalClaimedRewardAmount) }
               </g>
             </Typography>
-            <Typography sx={{ color: "#888888", width: "20%" }}>
-              <g>PendingRewardAmount</g>
+            <Typography sx={{ color: "#888888", width: "10%" }}>
+              <g>Current Staked</g>
               <br />
               <g style={{ fontSize: "1rem", color: "#424242" }}>
-                { formatDisplayNumber(userInfo.totalPendingRewardAmount) }
+                { formatDisplayNumber(userInfo.currentLockedStakedAmount + userInfo.currentNolockedStakedAmount) }
               </g>
             </Typography>
-            <Typography sx={{ color: "#888888", width: "20%" }}>
-              <g>Unlock Tokens</g>
+            <Typography sx={{ color: "#888888", width: "10%" }}>
+              <g>Current Cooldown</g>
               <br />
               <g style={{ fontSize: "1rem", color: "#424242" }}>
-                { formatDisplayNumber(unlockAmount) }
+                { formatDisplayNumber(userInfo.cooldownAmount) }
+              </g>
+            </Typography>
+            <Typography sx={{ color: "#888888", width: "10%" }}>
+              <g>Cooldown Remain</g>
+              <br />
+              <g style={{ fontSize: "1rem", color: "#424242" }}>
+                { lockRemainText }
               </g>
             </Typography>
           </div>
@@ -381,6 +479,13 @@ TestStakingProps
                 style={{ fontWeight: "bold", marginRight: "20px" }}
               >
                 STAKE
+              </Button>
+              <Button
+                variant="outlined"
+                onClick={() => handleCooldown()}
+                style={{ fontWeight: "bold", marginRight: "20px" }}
+              >
+                COOLDOWN
               </Button>
               <Button
                 variant="outlined"
@@ -402,8 +507,8 @@ TestStakingProps
             <g>Stake History</g>
           </Typography>
           <DataGrid
-            rows={userInfo.stakeInfos}
-            columns={stakeTableColumns}
+            rows={userInfo.userHistories}
+            columns={historyTableColumns}
             initialState={{ pagination: { paginationModel }, sorting: { sortModel: [{field: 'lockStartTime', sort: 'desc'}]} }}
             pageSizeOptions={[5, 10]}
             sx={{ border: 0, width: '100%' }}
@@ -424,19 +529,19 @@ TestStakingProps
               type="button"
               variant="outlined"
               style={{ fontWeight: "bold", marginLeft: "20px" }}
-              onClick = {() => alert(formatDisplayNumber(getClaimedRewardInterval()))}
+              onClick = {() => (getClaimedRewardInterval())}
             >
               Get Claimed Rewards
             </Button>
           </div>
-          <DataGrid
+          {/* <DataGrid
             rows={userInfo.rewardInfos}
             columns={rewardTableColumns}
             initialState={{ pagination: { paginationModel }, sorting: { sortModel: [{field: 'claimTime', sort: 'desc'}]} }}
             pageSizeOptions={[5, 10]}
             sx={{ border: 0, width: '100%' }}
-          />
-          <Dialog open={ modalType == 'stake' || modalType == 'withdraw' || modalType == 'claim' } onClose={handleCloseModal}>
+          /> */}
+          <Dialog open={ modalType == 'stake' || modalType == 'cooldown' || modalType == 'withdraw' || modalType == 'claim' } onClose={handleCloseModal}>
             <DialogTitle style={{ fontWeight: "bold" }}>
               { modalType.toUpperCase() }
               <IconButton
@@ -467,7 +572,11 @@ TestStakingProps
               >
 
                 <Typography variant="inherit" color="text.secondary">
-                  <g>{ modalType == 'stake' ? `Max amount is ${formatDisplayNumber(currentBalance)}. Input stake amount. ` : (modalType == 'withdraw' ? `Unlock amount is ${formatDisplayNumber(unlockAmount)}. Are you going to withdraw all you staked?` : `Claimable Rewards: ${formatDisplayNumber(claimableRewards)}`) }</g>
+                  <g>{ modalType == 'stake' ? 
+                    `Max amount is ${formatDisplayNumber(currentBalance)}. Input stake amount. ` 
+                    : (modalType == 'withdraw' 
+                        ? `Unlock amount is ${formatDisplayNumber(unlockAmount)}. Are you going to withdraw all you staked?` 
+                        : `Claimable Rewards: ${formatDisplayNumber(claimableRewards)}`) }</g>
                 </Typography>
               </Box>
               <form>
@@ -491,7 +600,7 @@ TestStakingProps
                     "aria-label": "read-only mode address",
                   }}
                 />
-                <Select
+                {/* <Select
                   value={lockType}
                   onChange={handleLockTypeChange}
                   sx={(theme) => ({
@@ -511,7 +620,7 @@ TestStakingProps
                   <MenuItem value={3}>6 Months Lock</MenuItem>
                   <MenuItem value={4}>9 Months Lock</MenuItem>
                   <MenuItem value={5}>12 Months Lock</MenuItem>
-                </Select>
+                </Select> */}
                 <Button
                   type="button"
                   variant="outlined"

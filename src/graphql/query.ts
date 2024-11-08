@@ -5,52 +5,62 @@ query PoolInfoQuery($id: String) {
     poolInfo(id: $id) {
         totalDistributionAmount
         totalRewardAmount
-        totalStakedAmount
+        totalLockedStakedAmount
+        totalNolockStakedAmount
         totalWithdrawAmount
         totalWeights
     }
 }`
 
 export const GET_USER_INFO_QUERY = gql`
-query UserInfoQuery($id: String) { 
-    userInfo(id: $id) {
-        currentStakedAmount
-        lastTokensWeightedShare
-        activeStakeInfoCount
-        totalClaimedRewardAmount
-        totalPendingRewardAmount
-        totalRewardInfoCount
-        totalStakeInfoCount
-        totalStakedAmount
-        totalWithdrawedAmount
-        weights
+query UserInfoQuery($poolId: String, $userId: String) {
+    poolInfo(id: $poolId) {
+        cooldownSeconds
     }
-}`
-
-export const GET_REWARD_INFO_QUERY = gql`
-query UserInfoQuery($id: String, $skip: Int = 0, $first: Int = 10) { 
-    userInfo(id: $id) {
-        rewardInfos(skip: $skip, first: $first, orderBy: claimTime, orderDirection: desc) {
-            amount
-            claimTime
+    cooldownSnapshotInfo(id: $userId) {
+        amount
+        timestamp
+    }
+    userInfo(id: $userId) {
+        totalLockedStakedAmount
+        totalNolockedStakedAmount
+        totalRewardInfoCount
+        totalWithdrawedAmount
+        totalHistoryCount
+        totalClaimedRewardAmount
+        currentNolockedStakedAmount
+        currentLockedStakedAmount
+        userHistories {
+            currentNolockedQuantity
+            currentLockedQuantity
             claimedEpoch
+            finished
+            finishedTime
+            historyType
             id
+            previousLockedQuantity
+            previousNolockedQuantity
+            rewardQuantity
+            startTime
         }
     }
 }`
 
-export const GET_STAKE_INFO_QUERY = gql`
+export const GET_USER_HISTORY_QUERY = gql`
 query UserInfoQuery($id: String, $skip: Int = 0, $first: Int = 10) { 
     userInfo(id: $id) {
-        stakeInfos(skip: $skip, first: $first, orderBy: lockStartTime, orderDirection: desc) {
+        userHistories(skip: $skip, first: $first, orderBy: id, orderDirection: desc) {
+            currentNolockedQuantity
+            currentLockedQuantity
+            claimedEpoch
             finished
             finishedTime
+            historyType
             id
-            lockEndTime
-            lockPeriod
-            lockStartTime
-            lockType
-            quantity
+            previousLockedQuantity
+            previousNolockedQuantity
+            rewardQuantity
+            startTime
         }
     }
 }`
@@ -58,11 +68,8 @@ query UserInfoQuery($id: String, $skip: Int = 0, $first: Int = 10) {
 export const GET_FILTERED_REWARD_INFO_QUERY = gql`
 query UserInfoQuery($id: String, $startTime: String, $endTime: String) { 
     userInfo(id: $id) {
-        rewardInfos(where: {claimTime_gte: $startTime, claimTime_lte: $endTime}) {
-            amount
-            claimTime
-            claimedEpoch
-            id
+        userHistories(where: {startTime_gte: $startTime, startTime_lte: $endTime, historyType: "REWARD"}) {
+            rewardQuantity,
         }
     }
 }`

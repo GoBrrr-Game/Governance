@@ -9,17 +9,20 @@ import { networkConfig } from "@/config/network";
 class PoolInfoData {
   totalDistributionAmount: number;
   totalRewardAmount: number;
-  totalStakedAmount: number;
+  totalLockedStakedAmount: number;
+  totalNolockStakedAmount: number;
   totalWithdrawAmount: number;
   constructor(
     totalDistributionAmount: number = 0,
     totalRewardAmount: number = 0,
-    totalStakedAmount: number = 0,
+    totalLockedStakedAmount: number = 0,
+    totalNolockStakedAmount: number = 0,
     totalWithdrawAmount: number = 0
   ) {
     this.totalDistributionAmount = totalDistributionAmount;
     this.totalRewardAmount = totalRewardAmount;
-    this.totalStakedAmount = totalStakedAmount;
+    this.totalLockedStakedAmount = totalLockedStakedAmount;
+    this.totalNolockStakedAmount = totalNolockStakedAmount;
     this.totalWithdrawAmount = totalWithdrawAmount;
   }
 }
@@ -39,10 +42,11 @@ export function StakingHeader() {
     }).then((value: ApolloQueryResult<any>) => {
       const data = value.data;
       const poolInfo: PoolInfoData = new PoolInfoData(
-        Number(data.poolInfo.totalDistributionAmount) / decimals,
-        Number(data.poolInfo.totalRewardAmount) / decimals,
-        Number(data.poolInfo.totalStakedAmount) / decimals,
-        Number(data.poolInfo.totalWithdrawAmount) / decimals
+        Number(data.poolInfo.totalDistributionAmount || 0) / decimals,
+        Number(data.poolInfo.totalRewardAmount || 0) / decimals,
+        Number(data.poolInfo.totalLockedStakedAmount || 0) / decimals,
+        Number(data.poolInfo.totalNolockStakedAmount || 0) / decimals,
+        Number(data.poolInfo.totalWithdrawAmount || 0) / decimals
       );
       setPoolInfo(poolInfo);
       setUpgradable(false);
@@ -95,10 +99,19 @@ export function StakingHeader() {
         <Typography
           sx={{ color: "#8E92A3", maxWidth: "824px", marginRight: "50px" }}
         >
-          <g>Total Staked</g>
+          <g>Total Locked</g>
           <br />
           <g style={{ fontSize: "1.5rem", color: "white", fontWeight: "bold" }}>
-            { formatDisplayNumber(poolInfo.totalStakedAmount) }
+            { formatDisplayNumber(poolInfo.totalLockedStakedAmount) }
+          </g>
+        </Typography>
+        <Typography
+          sx={{ color: "#8E92A3", maxWidth: "824px", marginRight: "50px" }}
+        >
+          <g>Total NoLocked</g>
+          <br />
+          <g style={{ fontSize: "1.5rem", color: "white", fontWeight: "bold" }}>
+            { formatDisplayNumber(poolInfo.totalNolockStakedAmount) }
           </g>
         </Typography>
         <Typography
