@@ -347,7 +347,6 @@ TestStakingProps
         Number(data.cooldownSnapshotInfo.timestamp)
       );
       setCooldownSeconds(Number(data.poolInfo.cooldownSeconds));
-      console.log(address, userInfo);
       userInfo.userHistories = data.userInfo.userHistories;
       if (tokenContract) {
         tokenContract.balanceOf(address).then((value) => {
@@ -382,25 +381,33 @@ TestStakingProps
     });
   }, [address, decimals]);
 
+  const updateCooldownRemain = () => {
+    if (!userInfo) return;
+    const curTime = new Date().getTime() / 1000;
+    if (userInfo.cooldownTimestamp + cooldownSeconds <= curTime) {
+      setLockRemainText("Unlocked");
+    }else {
+      const remain = Math.floor(userInfo.cooldownTimestamp + cooldownSeconds - curTime);
+      setLockRemainText(`${Math.floor(remain / 86400)}d ${Math.floor((remain % 86400) / 3600)}h ${Math.floor((remain % 3600)/60)}m ${Math.floor(remain % 60)}s`);
+    }
+  }
+
+  useEffect(() => {
+    const lockInterval = setInterval(updateCooldownRemain, 1000);
+    return () => {
+      clearInterval(lockInterval);
+    }
+  }, [userInfo]);
+
   useEffect(() => {
     if (!address) return;
     upgradeAll();
     const interval = setInterval(() => {
       upgradeAll()
     },12000);
-    const lockInterval = setInterval(() => {
-      const curTime = new Date().getTime() / 1000;
-      console.log(userInfo.cooldownTimestamp + cooldownSeconds, curTime);
-      if (userInfo.cooldownTimestamp + cooldownSeconds <= curTime) {
-        setLockRemainText("Unlocked");
-      }else {
-        const remain = Math.floor(userInfo.cooldownTimestamp + cooldownSeconds - curTime);
-        setLockRemainText(`${Math.floor(remain / 3600)}h ${Math.floor((remain % 3600)/60)}m ${Math.floor(remain % 60)}s Remain`);
-      }
-    }, 1000);
+    
     return () => {
       clearInterval(interval);
-      clearInterval(lockInterval);
     }
   }, [address]);
 
